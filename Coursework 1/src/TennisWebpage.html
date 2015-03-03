@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="getXML.js"></script>
+    <title>Tennis Scores WebPage</title>
+</head>
+<body>
+        <input type="button" value="Womens Scores" onclick="showWomensScores()">
+        <input type="button" value="Mens Scores" onclick="showMensScores()">
+        <input type="button" value="Hide Scores" onclick="hideScores()">
+        <div id="example" />
+</body>
+    <script>
+            var womenXmlDoc = getXML("wimbledon-women-2013.xml");
+            var menXmlDoc = getXML("wimbledon-men-2013.xml");
+            var stylesheet = getXML("TennisScores.xsl");
+            var nsResolver = stylesheet.createNSResolver(
+                    stylesheet.ownerDocument == null ?
+                            stylesheet.documentElement :
+                            stylesheet.ownerDocument.documentElement);
+            var value = stylesheet.evaluate(
+                    "//xsl:template[@match='tournament']//xsl:value-of",
+                    stylesheet, nsResolver,
+                    XPathResult.ANY_UNORDERED_NODE_TYPE, null);
+            var proc = new XSLTProcessor();
+            proc.importStylesheet(stylesheet);
+            function showMensScores() {
+                var resultFragment = proc.transformToFragment(menXmlDoc, document);
+                document.getElementById("example").appendChild(resultFragment);
+            }
+            function showWomensScores() {
+                var resultsFragment = proc.transformToFragment(womenXmlDoc, document);
+                document.getElementById("example").appendChild(resultsFragment);
+            }
+            function hideScores() {
+                document.write(document.getElementsByName("example/tournament/name").valueOf());
+            }
+    </script>
+</html>

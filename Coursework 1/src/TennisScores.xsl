@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns="http://www.w3.org/1999/xhtml">
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:template match="tournament">
-        <html>
-            <head>
-                <link rel="stylesheet" href="tennisscores-xsl.css" type="text/css" />
-                <title>BBKSport Tennis Scores</title>
-            </head>
+        <head>
+            <link rel="stylesheet" href="tennisscores-xsl.css" type="text/css" />
+            <title><xsl:value-of select="name"/> Scores</title>
+        </head>
             <body>
                 <h1>Tennis Scores</h1>
                 <h2>
@@ -26,12 +23,9 @@
                             <th>Set 5</th>
                         </xsl:if>
                     </tr>
-                    <tr> <td> </td> </tr>
-                    <tr> <td> </td> </tr>
                     <xsl:apply-templates select="match"/>
                 </table>
             </body>
-        </html>
     </xsl:template>
 
     <xsl:template match="match">
@@ -55,7 +49,7 @@
                     </xsl:for-each>
             </tr>
         </xsl:for-each>
-        <tr> <td> </td> </tr>
-        <tr> <td> </td> </tr>
+        <tr><td> </td></tr>
+        <tr><td> </td></tr>
     </xsl:template>
 </xsl:stylesheet>
