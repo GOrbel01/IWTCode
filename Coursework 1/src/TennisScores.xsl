@@ -6,7 +6,7 @@
         <html>
             <head>
                 <link rel="stylesheet" href="tennisscores-xsl.css" type="text/css" />
-                <title>Birkbeck Sport Tennis Scores</title>
+                <title>BBKSport Tennis Scores</title>
             </head>
             <body>
                 <h1>Tennis Scores</h1>
