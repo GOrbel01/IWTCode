@@ -6,9 +6,15 @@
     <title>Tennis Scores WebPage</title>
 </head>
 <body>
-        <input type="button" value="Womens Scores" onclick="showWomensScores()">
-        <input type="button" value="Mens Scores" onclick="showMensScores()">
-        <input type="button" value="Hide Scores" onclick="hideScores()">
+        <label>Player Name</label>
+        <input type="text" id="plName" /> Search
+        <input type="button" value="Exact Match" onclick="search(true, plName.value)">
+        <input type="button" value="Contains" onclick="search(false, plName.value)">
+        <input type="radio" name="DisplayScores" value="MS" onclick="setMensScores()">Men's Scores
+        <input type="radio" name="DisplayScores" value="WS" onclick="setWomensScores()">Women's Scores
+        <input type="button" value="Hide Scores" onclick="removeScores()">
+        <input type="button" value="Test" onclick="search()">
+
         <div id="example"></div>
 </body>
     <script>
@@ -24,15 +30,47 @@
                     XPathResult.ANY_UNORDERED_NODE_TYPE, null);
             var proc = new XSLTProcessor();
             proc.importStylesheet(stylesheet);
-            function showMensScores() {
+
+            function setMensScores() {
                 xmlDoc = getXML("wimbledon-men-2013.xml");
-                var resultFragment = proc.transformToFragment(xmlDoc, document);
-                document.getElementById("example").appendChild(resultFragment);
+//                var resultFragment = proc.transformToFragment(xmlDoc, document);
+//                document.getElementById("example").appendChild(resultFragment);
             }
-            function showWomensScores() {
+
+            function setWomensScores() {
                 xmlDoc = getXML("wimbledon-women-2013.xml");
-                var resultsFragment = proc.transformToFragment(xmlDoc, document);
-                document.getElementById("example").appendChild(resultsFragment);
+//                var resultFragment = proc.transformToFragment(xmlDoc, document);
+//                document.getElementById("example").appendChild(resultFragment);
             }
+
+            function removeScores() {
+                var root = document.getElementById("example");
+                var temp = document.getElementById("example").firstChild;
+                var test = document.getElementById("example").childNodes;
+//                test[0].parentNode.removeChild(test[1]);
+//                test[0].parentNode.removeChild(test[1]);
+                var rootSize = test.length;
+                for (i = 0; i < rootSize; i++)
+                {
+                    root.removeChild(test[i]);
+                }
+            }
+            function search() {
+//                if (isExact)
+//                {
+                    var testXML = getXML("wimbledon-men-2013.xml");
+//                    document.write("SIZE: " + matches.length);
+//                    for (j = 0; j < matches.length; j++)
+//                    {
+//                        document.getElementById("example").appendChild((matches[j]));
+//                    }
+                    var x = testXML.firstChild.childNodes;
+                    var cnt = testXML.firstChild.childNodes.length;
+                    for (k = 0; k < cnt; k++)
+                    {
+                        document.write(x[k]);
+                    }
+            }
+
     </script>
 </html>
