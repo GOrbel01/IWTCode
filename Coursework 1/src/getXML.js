@@ -8,3 +8,12 @@ function getXML(filename)
     xhr.send(null);
     return xhr.responseXML;
 }
+
+function getXMLJQ(myUrl) {
+    var xhr = $.ajax({
+        url:      myUrl,
+        datatype: "xml",
+        async:    false
+    });
+    return xhr.responseXML;
+}

@@ -2,75 +2,98 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <script src="jquery-1.11.2.js"></script>
     <script src="getXML.js"></script>
     <title>Tennis Scores WebPage</title>
 </head>
 <body>
-        <label>Player Name</label>
-        <input type="text" id="plName" /> Search
-        <input type="button" value="Exact Match" onclick="search(true, plName.value)">
-        <input type="button" value="Contains" onclick="search(false, plName.value)">
         <input type="radio" name="DisplayScores" value="MS" onclick="setMensScores()">Men's Scores
         <input type="radio" name="DisplayScores" value="WS" onclick="setWomensScores()">Women's Scores
-        <input type="button" value="Hide Scores" onclick="removeScores()">
-        <input type="button" value="Test" onclick="search()">
+        <form>
+            <label>Search Term</label>
+            <input type="text" id="plName" /> Search Type
+            <input type="button" value="Exact Match" onclick="search(true, plName.value)">
+            <input type="button" value="Contains" onclick="search(false, plName.value)">
+        </form>
+        <!--<input type="button" value="Hide Scores" onclick="removeScores()">-->
+        <!--<input type="button" value="Test" onclick="search()">-->
 
-        <div id="example"></div>
+        <div id="resultDisplay"></div>
 </body>
     <script>
-            var xmlDoc;
-            var stylesheet = getXML("TennisScores.xsl");
-            var nsResolver = stylesheet.createNSResolver(
-                    stylesheet.ownerDocument == null ?
-                            stylesheet.documentElement :
-                            stylesheet.ownerDocument.documentElement);
-            var value = stylesheet.evaluate(
-                    "//xsl:template[@match='tournament']//xsl:value-of",
-                    stylesheet, nsResolver,
-                    XPathResult.ANY_UNORDERED_NODE_TYPE, null);
-            var proc = new XSLTProcessor();
-            proc.importStylesheet(stylesheet);
 
-            function setMensScores() {
-                xmlDoc = getXML("wimbledon-men-2013.xml");
-//                var resultFragment = proc.transformToFragment(xmlDoc, document);
-//                document.getElementById("example").appendChild(resultFragment);
+        var xmlDoc;
+        var stylesheet = getXML("TennisScores.xsl");
+        var nsResolver = stylesheet.createNSResolver(
+                stylesheet.ownerDocument == null ?
+                        stylesheet.documentElement :
+                        stylesheet.ownerDocument.documentElement);
+        var value = stylesheet.evaluate(
+                "//xsl:template[@match='tournament']//xsl:value-of",
+                stylesheet, nsResolver,
+                XPathResult.ANY_UNORDERED_NODE_TYPE, null);
+        var proc = new XSLTProcessor();
+        proc.importStylesheet(stylesheet);
+
+        function setMensScores() {
+            xmlDoc = getXML("wimbledon-men-2013.xml");
+        }
+
+        function setWomensScores() {
+
+            xmlDoc = getXML("wimbledon-women-2013.xml");
+        }
+
+        function search(isExactSearch, nameVar)
+        {
+            if ((document.getElementById("resultDisplay").hasChildNodes())) { //Handles Before a Search is Entered
+                removeResults();
             }
+            if (isExactSearch)
+            {
+                var esXslChange = "match [player/name='" + nameVar + "']";
+                $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+                        .first()
+                        .attr("select", esXslChange);
+                if (typeof (XSLTProcessor) != "undefined") {
 
-            function setWomensScores() {
-                xmlDoc = getXML("wimbledon-women-2013.xml");
-//                var resultFragment = proc.transformToFragment(xmlDoc, document);
-//                document.getElementById("example").appendChild(resultFragment);
-            }
-
-            function removeScores() {
-                var root = document.getElementById("example");
-                var temp = document.getElementById("example").firstChild;
-                var test = document.getElementById("example").childNodes;
-//                test[0].parentNode.removeChild(test[1]);
-//                test[0].parentNode.removeChild(test[1]);
-                var rootSize = test.length;
-                for (i = 0; i < rootSize; i++)
-                {
-                    root.removeChild(test[i]);
                 }
+                else
+                {
+                    window.alert("Your browser sucks...");
+                }
+                var esResults = proc.transformToFragment(xmlDoc, document);
+                document.getElementById("resultDisplay").appendChild(esResults);
             }
-            function search() {
-//                if (isExact)
-//                {
-                    var testXML = getXML("wimbledon-men-2013.xml");
-//                    document.write("SIZE: " + matches.length);
-//                    for (j = 0; j < matches.length; j++)
-//                    {
-//                        document.getElementById("example").appendChild((matches[j]));
-//                    }
-                    var x = testXML.firstChild.childNodes;
-                    var cnt = testXML.firstChild.childNodes.length;
-                    for (k = 0; k < cnt; k++)
-                    {
-                        document.write(x[k]);
-                    }
+            else
+            {
+                var csXslChange = "match [player/name[contains(.,'" + nameVar + "')]]";
+                $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+                        .first()
+                        .attr("select", csXslChange);
+                if (typeof (XSLTProcessor) != "undefined") {
+
+                }
+                else
+                {
+                    window.alert("Your browser sucks...");
+                }
+                var csResults = proc.transformToFragment(xmlDoc, document);
+                document.getElementById("resultDisplay").appendChild(csResults);
             }
+        }
+
+        /**
+         * Removes the current contents of the div node
+         */
+        function removeResults()
+        {
+            var root = document.getElementById("resultDisplay");
+            while(root.hasChildNodes())
+            {
+                root.removeChild(root.firstChild);
+            }
+        }
 
     </script>
 </html>
