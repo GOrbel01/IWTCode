@@ -13,47 +13,30 @@
     </script>
 
     <div id="container" style="float: left">
-        <table width="40%" border="double" cellpadding="3" cellspacing="2">
-            <tr>
-                <th style="text-decoration: underline; text-align: left">Player Search</th>
-                <th></th>
+        <table style="table-layout: fixed; width: 300px">
+            <tr style="border: none; text-align: left">
+                <th style="border: none; text-align: left">Select Scores</th>
             </tr>
             <tr>
-                <td><input type="radio" name="DisplayScores" value="MS" onclick="setMensScores()">Men's Scores</td>
-                <td><input type="radio" name="DisplayScores" value="WS" onclick="setWomensScores()">Women's Scores</td>
+                <td><input type="button" value="Mens Scores" onclick="setMensScores()"></td>
+                <td><input type="button" value="Womens Scores" onclick="setWomensScores()"></td>
             </tr>
             <tr>
-                <td><label>Search Term</label></td>
-                <td><input type="text" id="plName" /></td>
+                <td></td>
             </tr>
             <tr>
-                <td><label>Search Type</label></td>
-                <td><input type="button" value="Contains" onclick="search(false, plName.value)">
-                    <input type="button"  value="Exact Match" onclick="search(true, plName.value)"></td>
+                <td></td>
             </tr>
         </table>
-        <table width="40%" border="double" cellpadding="3" cellspacing="2">
+        <table>
             <tr>
-                <th style="text-decoration: underline; text-align: left">Set Quantity Filter</th>
-                <td>Number of Sets</td>
+                <th>Name Filter</th>
             </tr>
-            <tr>
-                <td><input type="number" value="Sets" id="numSets" min="2" max="5"/></td>
-                <td><input type="button" value="Go" onclick="roundSearch(setType, numSets.value)"/></td>
-            </tr>
-            <tr>
-                <td><input type="radio" name="SetFilter" value="lt" onclick="setType=0">Less
-                <input type="radio" name="SetFilter" value="eq">Equal
-                <input type="radio" name="SetFilter" value="gt">Greater</td>
-            </tr>
-            <tr>
-                <td><input type="button" value="Search" onclick="masterFunction()"/></td>
-            </tr>
+        </table>
+        <table>
+
         </table>
     </div>
-        <!--<input type="button" value="Hide Scores" onclick="removeScores()">-->
-        <!--<input type="button" value="Test" onclick="search()">-->
-
         <div id="resultDisplay" style="float: left"></div>
 </body>
     <script>
@@ -70,6 +53,8 @@
                 XPathResult.ANY_UNORDERED_NODE_TYPE, null);
         var proc = new XSLTProcessor();
         proc.importStylesheet(stylesheet);
+
+        var hasGeneratedFirstQuery = false;
 
         //String fields to Store Filter Values
         var playerSearchString = "";
@@ -95,25 +80,12 @@
         /*
             Main function to handle execution of a search based on the users criteria
         */
-        function masterFunction()
+        function runQuery()
         {
             if ((document.getElementById("resultDisplay").hasChildNodes())) { //Handles Before a Search is Entered
                 removeResults();
             }
-            var funcString = "match [";
-            if (playerSearchString.length != 0)
-            {
-                funcString = funcString + playerSearchString
-            }
-            if (setSearchString.length != 0)
-            {
-                funcString = funcString + " and " + setSearchString
-            }
-            if (roundSearchString.length != 0)
-            {
-                funcString = funcString + " and " + roundSearchString
-            }
-            funcString = funcString + "]";
+            var funcString = buildQuery();
             $(stylesheet).find("xsl\\:apply-templates, apply-templates")
                     .eq(0)
                     .attr("select", funcString);
@@ -160,6 +132,56 @@
         function roundSearch(roundType, num)
         {
             roundSearchString  = "round='" + num + "'";
+        }
+
+        function buildQuery()
+        {
+            var funcString = [];
+//                    funcString.push("match [");
+                if (playerSearchString.length != 0)
+                {
+                    funcString.push(playerSearchString);
+                }
+                if (setSearchString.length != 0)
+                {
+                    funcString.push(setSearchString);
+                }
+                if (roundSearchString.length != 0)
+                {
+                    funcString.push(roundSearchString);
+                }
+//            funcString = funcString + "]";
+            var finalString = "match [" + addAnds(funcString) + "]";
+            console.log(finalString);
+            return finalString;
+        }
+
+        function addAnds(arr)
+        {
+            var finalString = "";
+            for (i = 0; i < arr.length; i++)
+            {
+                if (arr.length == 1)
+                {
+                    finalString = arr[0];
+                }
+                else
+                {
+                    if (i == 0)
+                    {
+                        finalString += arr[i] + " and ";
+                    }
+                    else if (i == arr.length-1)
+                    {
+                        finalString += arr[i];
+                    }
+                    else
+                    {
+                        finalString += arr[i] + " and "
+                    }
+                }
+            }
+            return finalString;
         }
 
         /**
