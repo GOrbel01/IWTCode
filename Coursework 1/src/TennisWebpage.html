@@ -7,18 +7,54 @@
     <title>Tennis Scores WebPage</title>
 </head>
 <body>
-        <input type="radio" name="DisplayScores" value="MS" onclick="setMensScores()">Men's Scores
-        <input type="radio" name="DisplayScores" value="WS" onclick="setWomensScores()">Women's Scores
-        <form>
-            <label>Search Term</label>
-            <input type="text" id="plName" /> Search Type
-            <input type="button" value="Exact Match" onclick="search(true, plName.value)">
-            <input type="button" value="Contains" onclick="search(false, plName.value)">
-        </form>
+    <script>
+        //Fields Required for Buttons
+        var setType = 0;
+    </script>
+
+    <div id="container" style="float: left">
+        <table width="40%" border="double" cellpadding="3" cellspacing="2">
+            <tr>
+                <th style="text-decoration: underline; text-align: left">Player Search</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td><input type="radio" name="DisplayScores" value="MS" onclick="setMensScores()">Men's Scores</td>
+                <td><input type="radio" name="DisplayScores" value="WS" onclick="setWomensScores()">Women's Scores</td>
+            </tr>
+            <tr>
+                <td><label>Search Term</label></td>
+                <td><input type="text" id="plName" /></td>
+            </tr>
+            <tr>
+                <td><label>Search Type</label></td>
+                <td><input type="button" value="Contains" onclick="search(false, plName.value)">
+                    <input type="button"  value="Exact Match" onclick="search(true, plName.value)"></td>
+            </tr>
+        </table>
+        <table width="40%" border="double" cellpadding="3" cellspacing="2">
+            <tr>
+                <th style="text-decoration: underline; text-align: left">Set Quantity Filter</th>
+                <td>Number of Sets</td>
+            </tr>
+            <tr>
+                <td><input type="number" value="Sets" id="numSets" min="2" max="5"/></td>
+                <td><input type="button" value="Go" onclick="roundSearch(setType, numSets.value)"/></td>
+            </tr>
+            <tr>
+                <td><input type="radio" name="SetFilter" value="lt" onclick="setType=0">Less
+                <input type="radio" name="SetFilter" value="eq">Equal
+                <input type="radio" name="SetFilter" value="gt">Greater</td>
+            </tr>
+            <tr>
+                <td><input type="button" value="Search" onclick="masterFunction()"/></td>
+            </tr>
+        </table>
+    </div>
         <!--<input type="button" value="Hide Scores" onclick="removeScores()">-->
         <!--<input type="button" value="Test" onclick="search()">-->
 
-        <div id="resultDisplay"></div>
+        <div id="resultDisplay" style="float: left"></div>
 </body>
     <script>
 
@@ -35,52 +71,95 @@
         var proc = new XSLTProcessor();
         proc.importStylesheet(stylesheet);
 
+        //String fields to Store Filter Values
+        var playerSearchString = "";
+        var setSearchString = "";
+        var roundSearchString = "";
+        var sortString = "";
+
+        /*
+            Set Current Document to Wimbledon 2013 Mens
+        */
         function setMensScores() {
             xmlDoc = getXML("wimbledon-men-2013.xml");
         }
 
+        /*
+         Set Current Document to Wimbledon 2013 Womens
+         */
         function setWomensScores() {
 
             xmlDoc = getXML("wimbledon-women-2013.xml");
         }
 
-        function search(isExactSearch, nameVar)
+        /*
+            Main function to handle execution of a search based on the users criteria
+        */
+        function masterFunction()
         {
             if ((document.getElementById("resultDisplay").hasChildNodes())) { //Handles Before a Search is Entered
                 removeResults();
             }
-            if (isExactSearch)
+            var funcString = "match [";
+            if (playerSearchString.length != 0)
             {
-                var esXslChange = "match [player/name='" + nameVar + "']";
-                $(stylesheet).find("xsl\\:apply-templates, apply-templates")
-                        .first()
-                        .attr("select", esXslChange);
-                if (typeof (XSLTProcessor) != "undefined") {
+                funcString = funcString + playerSearchString
+            }
+            if (setSearchString.length != 0)
+            {
+                funcString = funcString + " and " + setSearchString
+            }
+            if (roundSearchString.length != 0)
+            {
+                funcString = funcString + " and " + roundSearchString
+            }
+            funcString = funcString + "]";
+            $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+                    .eq(0)
+                    .attr("select", funcString);
+            if (typeof (XSLTProcessor) != "undefined") {
 
-                }
-                else
-                {
-                    window.alert("Your browser sucks...");
-                }
-                var esResults = proc.transformToFragment(xmlDoc, document);
-                document.getElementById("resultDisplay").appendChild(esResults);
             }
             else
             {
-                var csXslChange = "match [player/name[contains(.,'" + nameVar + "')]]";
-                $(stylesheet).find("xsl\\:apply-templates, apply-templates")
-                        .first()
-                        .attr("select", csXslChange);
-                if (typeof (XSLTProcessor) != "undefined") {
-
-                }
-                else
-                {
-                    window.alert("Your browser sucks...");
-                }
-                var csResults = proc.transformToFragment(xmlDoc, document);
-                document.getElementById("resultDisplay").appendChild(csResults);
+                window.alert("Your browser sucks...");
             }
+            var reResults = proc.transformToFragment(xmlDoc, document);
+            document.getElementById("resultDisplay").appendChild(reResults);
+        }
+
+        /*
+            Sets playerSearchString with the Value input by User
+            based on the options chosen
+        */
+        function playerSearch(isExactSearch, nameVar)
+        {
+            if (isExactSearch)
+            {
+                playerSearchString = "player/name='" + nameVar + "'";
+            }
+            else
+            {
+                playerSearchString = "player/name[contains(.,'" + nameVar + "')]";
+            }
+        }
+
+        /*
+            Sets setSearchString with the values entered by the user
+            based on the options chosen
+        */
+        function setSearch(setType, num)
+        {
+            setSearchString = eqXslChange = ".//player[position()=1]/sets-won + .//player[position()=2]/sets-won='" + num + "'";
+        }
+
+        /*
+            Sets roundSearchString with the values entered by the user
+            based on the options chosen
+        */
+        function roundSearch(roundType, num)
+        {
+            roundSearchString  = "round='" + num + "'";
         }
 
         /**
