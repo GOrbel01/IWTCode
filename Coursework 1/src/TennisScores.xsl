@@ -25,10 +25,9 @@
                         <th>Set 5</th>
                     </xsl:if>
                 </tr>
-                <!--<xsl:variable name="TotalSets" select="match/player[position()=1]/sets-won + match/player[position()=2]/sets-won"/>-->
-                <!--<xsl:apply-templates select="match [.//player[position()=1]/sets-won + .//player[position()=2]/sets-won='3']"/>-->
-                <!--<xsl:apply-templates select="match [player/name='A.Murray' and .//player[position()=1]/sets-won + .//player[position()=2]/sets-won='3']"/>-->
-                <xsl:apply-templates select="match"/>
+                <xsl:apply-templates select="match">
+                    <xsl:sort order="ascending" select="round" data-type="number"/>
+                </xsl:apply-templates>
             </table>
         </body>
     </xsl:template>

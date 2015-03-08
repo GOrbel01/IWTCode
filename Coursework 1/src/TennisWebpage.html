@@ -6,37 +6,92 @@
     <script src="getXML.js"></script>
     <title>Tennis Scores WebPage</title>
 </head>
-<body>
+<body onload="resetFilter('ALL')">
     <script>
         //Fields Required for Buttons
-        var setType = 0;
+        var isExactMatch = false; //Default to Contains
+        var setType = 0;          //Defaults to Equal
+        var roundType = 0;        //Defaults to Equal
     </script>
 
     <div id="container" style="float: left">
+        <br>
         <table style="table-layout: fixed; width: 300px">
             <tr style="border: none; text-align: left">
                 <th style="border: none; text-align: left">Select Scores</th>
             </tr>
             <tr>
-                <td><input type="button" value="Mens Scores" onclick="setMensScores()"></td>
-                <td><input type="button" value="Womens Scores" onclick="setWomensScores()"></td>
-            </tr>
-            <tr>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
+                <td><input type="button" value="Mens Scores" onclick="setMensScores()" style="width: 120px"><br>
+                <input type="button" value="Womens Scores" onclick="setWomensScores()" style="width: 120px"></td>
+                <td>
+                    <textarea style="resize: none" readonly cols="10" id="scoresLoaded"></textarea>
+                </td>
             </tr>
         </table>
+        <br>
         <table>
             <tr>
-                <th>Name Filter</th>
+                <td>Player Name:<br><input type="text" id="plName"/>
+                    <br>
+                    Contains<input type="radio" name="TextFilter" id="CF" checked="checked" autocomplete="off" onclick="isExactMatch=false"/>
+                    Exact<input type="radio" name="TextFilter" id="EF" autocomplete="off" onclick="isExactMatch=true"/>
+                </td>
+                <td>
+                    <br>
+                    <input style="text-align: right; width: 120px" type="button" value="Apply Text Filter" onclick="playerSearch(isExactMatch, plName.value) " /><br>
+                    <input style="text-align: right; width: 120px" type="button" value="Remove Text Filter" onclick="resetFilter('Player')"/>
+                </td>
             </tr>
         </table>
+        <br>
         <table>
-
+            <tr>
+                <td>Number of Sets<br><input type="number" min="2" max="5" id="setNum" style="width: 9em"/>
+                </td>
+            </tr>
+            <tr style="text-align: right">
+                <td>Less Than<input type="radio" name="SetFilter" checked="checked" id="LTS" autocomplete="off" onclick="setType=-1"/>
+                <br>
+                Equals<input type="radio" name="SetFilter" id="EQS" autocomplete="off" onclick="setType=0"/>
+                <br>
+                More Than<input type="radio" name="SetFilter" id="MTS" autocomplete="off" onclick="setType=1"/></td>
+                <td>
+                    <input style="text-align: right; width: 120px" type="button" value="Apply Set Filter" onclick="setSearch(setType, setNum.value) " /><br>
+                    <input style="text-align: right; width: 120px" type="button" value="Remove Set Filter" onclick="resetFilter('Set')"/>
+                </td>
+            </tr>
         </table>
+        <br>
+        <table>
+            <tr>
+                <td>Round Number<br><input type="number" min="1" max="7" id="roundNum" style="width: 9em"/>
+                </td>
+            </tr>
+            <tr style="text-align: right">
+                <td>Less Than<input type="radio" name="RoundFilter" id="LTR" autocomplete="off" onclick="roundType=-1"/>
+                    <br>
+                    Equals<input type="radio" name="RoundFilter" checked="checked" id="EQR" autocomplete="off" onclick="roundType=0"/>
+                    <br>
+                    More Than<input type="radio" name="RoundFilter" id="MTR" autocomplete="off" onclick="roundType=1"/></td>
+                <td>
+                    <input style="text-align: right; font-size: 12px; width: 120px" type="button" value="Apply Round Filter" onclick="roundSearch(roundType, roundNum.value) " /><br>
+                    <input style="text-align: right; font-size: 11px; width: 120px" type="button" value="Remove Round Filter" onclick="resetFilter('Round')"/>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="button" value="Sort Ascending" onclick="sortString='ascending'"/></td>
+                <td><input type="button" value="Sort Descending" onclick="sortString='descending'"/></td>
+            </tr>
+        </table>
+        <div id="searchDisp" style="float:right">
+            <br>
+            <form style="width: 300px; margin: 0 auto; text-align: center; right:8%">
+                <br>
+                <input style="background-color: #4bff41; text-align:center; color:#3739a1; padding: 3%" type="button" value="Search" onclick="runQuery()"/>
+            </form>
+        </div>
     </div>
+        <h1>Search Results</h1>
         <div id="resultDisplay" style="float: left"></div>
 </body>
     <script>
@@ -54,19 +109,18 @@
         var proc = new XSLTProcessor();
         proc.importStylesheet(stylesheet);
 
-        var hasGeneratedFirstQuery = false;
-
         //String fields to Store Filter Values
         var playerSearchString = "";
         var setSearchString = "";
         var roundSearchString = "";
-        var sortString = "";
+        var sortString = "ascending"; //Default Value
 
         /*
             Set Current Document to Wimbledon 2013 Mens
         */
         function setMensScores() {
             xmlDoc = getXML("wimbledon-men-2013.xml");
+            scoresLoaded.value = "Searching Mens Scores";
         }
 
         /*
@@ -75,6 +129,7 @@
         function setWomensScores() {
 
             xmlDoc = getXML("wimbledon-women-2013.xml");
+            scoresLoaded.value = "Searching Womens Scores";
         }
 
         /*
@@ -85,10 +140,21 @@
             if ((document.getElementById("resultDisplay").hasChildNodes())) { //Handles Before a Search is Entered
                 removeResults();
             }
+            if (scoresLoaded.value == "")
+            {
+                alert("You Must Select a File to Search before trying to search");
+                return;
+            }
             var funcString = buildQuery();
-            $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+            if (funcString != "match []")
+            {
+                $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+                        .eq(0)
+                        .attr("select", funcString);
+            }
+            $(stylesheet).find("xsl\\:sort, sort")
                     .eq(0)
-                    .attr("select", funcString);
+                    .attr("order", sortString);
             if (typeof (XSLTProcessor) != "undefined") {
 
             }
@@ -103,6 +169,10 @@
         /*
             Sets playerSearchString with the Value input by User
             based on the options chosen
+            @param isExactSearch boolean, set based on radio buttons
+            named TextFilter
+            @param nameVar The value entered in the text input box
+            with id=plName
         */
         function playerSearch(isExactSearch, nameVar)
         {
@@ -119,21 +189,59 @@
         /*
             Sets setSearchString with the values entered by the user
             based on the options chosen
+            @param setType The search type determined by the radio buttons
+            with name SetFilter and the setType variable
+            -1 for less than, 0 for equals and 1 for greater than
+            @param num The parameter entered by the user in the number input
+            with id=setNum
         */
         function setSearch(setType, num)
         {
-            setSearchString = eqXslChange = ".//player[position()=1]/sets-won + .//player[position()=2]/sets-won='" + num + "'";
+            if (setType == -1)
+            {
+                setSearchString = ".//player[position()=1]/sets-won + .//player[position()=2]/sets-won<'" + num + "'";
+            }
+            else if (setType == 0)
+            {
+                setSearchString = ".//player[position()=1]/sets-won + .//player[position()=2]/sets-won='" + num + "'";
+            }
+            else if (setType == 1)
+            {
+                setSearchString = ".//player[position()=1]/sets-won + .//player[position()=2]/sets-won>'" + num + "'";
+            }
         }
 
         /*
             Sets roundSearchString with the values entered by the user
             based on the options chosen
+            @param roundType The search type determined by the radio buttons
+             with name RoundFilter and the roundType variable
+            -1 for less than, 0 for equals and 1 for greater than
+            @param num The parameter entered by the user in the number input
+            with id=roundNum
         */
         function roundSearch(roundType, num)
         {
-            roundSearchString  = "round='" + num + "'";
+            if (roundType == -1)
+            {
+                roundSearchString  = "round<'" + num + "'";
+            }
+            else if (roundType == 0)
+            {
+                roundSearchString  = "round='" + num + "'";
+            }
+            else if (roundType == 1)
+            {
+                roundSearchString  = "round>'" + num + "'";
+            }
         }
 
+        /*
+            Builds and Returns the QueryString by calling combineQuery
+            and appending the open and close predicate symbols to
+            the start and end of the String respectively
+            @return The fully prepared query String to execute
+        */
         function buildQuery()
         {
             var funcString = [];
@@ -151,12 +259,20 @@
                     funcString.push(roundSearchString);
                 }
 //            funcString = funcString + "]";
-            var finalString = "match [" + addAnds(funcString) + "]";
+            var finalString = "match [" + combineQuery(funcString) + "]";
             console.log(finalString);
             return finalString;
         }
 
-        function addAnds(arr)
+        /*
+            Combines the required queries together for execution by the runQuery() method
+            Makes use of the array generated in buildQuery and adds spaces and "and" statements
+            where required.
+            @param arr The Array generated in buildQuery containing each filter String element
+            at seperate indexes
+            @return The combined String of predicates to be used to generate the full xml query
+        */
+        function combineQuery(arr)
         {
             var finalString = "";
             for (i = 0; i < arr.length; i++)
@@ -185,7 +301,7 @@
         }
 
         /**
-         * Removes the current contents of the div node
+         * Removes the current contents of the results div node
          */
         function removeResults()
         {
@@ -193,6 +309,80 @@
             while(root.hasChildNodes())
             {
                 root.removeChild(root.firstChild);
+            }
+        }
+
+        /*
+            Control method for the three functions following
+            which are split off to save code-repetition.
+            @param tag The String given by the calling remove event
+            (usually a Remove Filters button)
+        */
+
+        function resetFilter(tag)
+        {
+            if (tag == "ALL")
+            {
+                resetPlayerFilter();
+                resetSetsFilter();
+                resetRoundFilter();
+                scoresLoaded.value="";
+            }
+            else
+            {
+                if (tag == "Player")
+                {
+                    resetPlayerFilter();
+                }
+                if (tag == "Set")
+                {
+                    resetSetsFilter();
+                }
+                if (tag == "Round")
+                {
+                    resetRoundFilter();
+                }
+            }
+        }
+
+        /*
+            Resets all elements of the player name filter
+         */
+        function resetPlayerFilter()
+        {
+            isExactMatch = false;
+            playerSearchString = "";
+            plName.value = "";
+        }
+
+        /*
+            Resets all elements of the set based filter
+         */
+        function resetSetsFilter()
+        {
+            setSearchString = "";
+            setNum.value = "";
+            setType = 0;
+        }
+
+        /*
+            Resets all elements of the round based filter
+         */
+        function resetRoundFilter()
+        {
+            roundSearchString = "";
+            roundNum.value = "";
+            roundType = 0;
+        }
+
+        function inputCheck(input, flag)
+        {
+            if (flag == 1)
+            {
+                if (input > 5 || !input.isNumeric)
+                {
+                    alert("Invalid Input, Must be Numeric.");
+                }
             }
         }
 
