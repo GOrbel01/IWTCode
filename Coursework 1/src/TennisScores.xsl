@@ -25,6 +25,8 @@
                         <th>Set 5</th>
                     </xsl:if>
                 </tr>
+                <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'" />
+                <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" />
                 <xsl:apply-templates select="match">
                     <xsl:sort order="ascending" select="round" data-type="number"/>
                 </xsl:apply-templates>

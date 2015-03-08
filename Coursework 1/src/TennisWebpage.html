@@ -38,7 +38,7 @@
                 </td>
                 <td>
                     <br>
-                    <input style="text-align: right; width: 120px" type="button" value="Apply Text Filter" onclick="playerSearch(isExactMatch, plName.value) " /><br>
+                    <input style="text-align: right; width: 120px" type="button" value="Apply Text Filter" onclick="playerSearch(plName.value) " /><br>
                     <input style="text-align: right; width: 120px" type="button" value="Remove Text Filter" onclick="resetFilter('Player')"/>
                 </td>
             </tr>
@@ -50,9 +50,9 @@
                 </td>
             </tr>
             <tr style="text-align: right">
-                <td>Less Than<input type="radio" name="SetFilter" checked="checked" id="LTS" autocomplete="off" onclick="setType=-1"/>
+                <td>Less Than<input type="radio" name="SetFilter" id="LTS" autocomplete="off" onclick="setType=-1"/>
                 <br>
-                Equals<input type="radio" name="SetFilter" id="EQS" autocomplete="off" onclick="setType=0"/>
+                Equals<input type="radio" name="SetFilter" id="EQS" checked="checked" autocomplete="off" onclick="setType=0"/>
                 <br>
                 More Than<input type="radio" name="SetFilter" id="MTS" autocomplete="off" onclick="setType=1"/></td>
                 <td>
@@ -174,9 +174,14 @@
             @param nameVar The value entered in the text input box
             with id=plName
         */
-        function playerSearch(isExactSearch, nameVar)
+        function playerSearch(nameVar)
         {
-            if (isExactSearch)
+            if (!(checkValidSearch(nameVar)))
+            {
+                alert("You Must Enter a String in the Correct Format with Correct Case \ne.g. to find Andy Murray as an Exact Match Search; A.Murray");
+                return;
+            }
+            if (isExactMatch)
             {
                 playerSearchString = "player/name='" + nameVar + "'";
             }
@@ -374,5 +379,40 @@
             roundNum.value = "";
             roundType = 0;
         }
+
+        function checkValidSearch(text)
+        {
+            var isValid = true;
+            if (isExactMatch)
+            {
+                if (!(isUpperCase(text.charAt(0))))
+                {
+                    isValid = false;
+                }
+                if (!(text.charAt(1) == "."))
+                {
+                    isValid = false;
+                }
+                if (!(isUpperCase(text.charAt(2))))
+                {
+                    isValid = false;
+                }
+            }
+            else
+            {
+                if (!(isUpperCase(text.charAt(0))))
+                {
+                    isValid = false;
+                }
+            }
+            return isValid;
+        }
+
+        function isUpperCase(str)
+        {
+            return str == str.toUpperCase();
+        }
+
     </script>
+
 </html>
