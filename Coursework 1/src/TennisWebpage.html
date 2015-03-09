@@ -109,8 +109,13 @@
         var proc = new XSLTProcessor();
         proc.importStylesheet(stylesheet);
 
+        var exactInputPattern = "([A-Z])(\-[A-Z])?(\.)([A-Z])([a-z])+((( |-)[A-Z]([a-z]+))?)*";
+
         //String fields to Store Filter Values
         var playerSearchString = "";
+        var playerSearchResetString = ""; //Used for Resetting the Value of the Player Search
+        // Text Field to a Legitimate Query. Makes sense as with my implementation this is what
+        //The query would search for if the search button was pressed again before reapplying the filter
         var setSearchString = "";
         var roundSearchString = "";
         var sortString = "ascending"; //Default Value
@@ -176,17 +181,28 @@
         */
         function playerSearch(nameVar)
         {
-            if (!(checkValidSearch(nameVar)))
-            {
-                alert("You Must Enter a String in the Correct Format with Correct Case \ne.g. to find Andy Murray as an Exact Match Search; A.Murray");
-                return;
-            }
             if (isExactMatch)
             {
+                if (!(nameVar.match(inputPattern)))
+                {
+                    alert("You Must Enter a String in the Correct Format with Correct Case " +
+                    "\ne.g. to find Andy Murray as an Exact Match Search; A.Murray");
+                    plName.value = playerSearchResetString;
+                    return;
+                }
+                playerSearchResetString = nameVar;
                 playerSearchString = "player/name='" + nameVar + "'";
             }
             else
             {
+                if (!(checkValidSearch(nameVar)))
+                {
+                    alert("The search is case and format sensitive so searching murray will not find" +
+                    "A.Murray, additionally neither will AMur or A.m,");
+                    plName.value = playerSearchResetString;
+                    return;
+                }
+                playerSearchResetString = nameVar;
                 playerSearchString = "player/name[contains(.,'" + nameVar + "')]";
             }
         }
@@ -383,26 +399,19 @@
         function checkValidSearch(text)
         {
             var isValid = true;
-            if (isExactMatch)
+            if (!(isUpperCase(text.charAt(0))))
             {
-                if (!(isUpperCase(text.charAt(0))))
-                {
-                    isValid = false;
-                }
-                if (!(text.charAt(1) == "."))
-                {
-                    isValid = false;
-                }
-                if (!(isUpperCase(text.charAt(2))))
-                {
-                    isValid = false;
-                }
+                isValid = false;
             }
-            else
+            for (i = 0; i < text.length; i++)
             {
-                if (!(isUpperCase(text.charAt(0))))
+                if (text.charAt(i) == "." || text.charAt(i) == "-" || text.charAt(i) == " ")
                 {
-                    isValid = false;
+                    console.log(text.charAt(i+1));
+                    if (!(isUpperCase(text.charAt(i+1))))
+                    {
+                        isValid = false;
+                    }
                 }
             }
             return isValid;
