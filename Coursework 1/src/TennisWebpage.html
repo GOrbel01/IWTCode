@@ -109,8 +109,6 @@
         var proc = new XSLTProcessor();
         proc.importStylesheet(stylesheet);
 
-        var exactInputPattern = "([A-Z])(\-[A-Z])?(\.)([A-Z])([a-z])+((( |-)[A-Z]([a-z]+))?)*";
-
         //String fields to Store Filter Values
         var playerSearchString = "";
         var playerSearchResetString = ""; //Used for Resetting the Value of the Player Search
@@ -153,9 +151,24 @@
             var funcString = buildQuery();
             if (funcString != "match []")
             {
+                console.log("In Matching");
                 $(stylesheet).find("xsl\\:apply-templates, apply-templates")
                         .eq(0)
                         .attr("select", funcString);
+            }
+            else
+            {
+                stylesheet = getXML("TennisScores.xsl");
+                nsResolver = stylesheet.createNSResolver(
+                        stylesheet.ownerDocument == null ?
+                                stylesheet.documentElement :
+                                stylesheet.ownerDocument.documentElement);
+                value = stylesheet.evaluate(
+                        "//xsl:template[@match='tournament']//xsl:value-of",
+                        stylesheet, nsResolver,
+                        XPathResult.ANY_UNORDERED_NODE_TYPE, null);
+                proc = new XSLTProcessor();
+                proc.importStylesheet(stylesheet);
             }
             $(stylesheet).find("xsl\\:sort, sort")
                     .eq(0)
@@ -171,6 +184,10 @@
             document.getElementById("resultDisplay").appendChild(reResults);
         }
 
+        //Notes: Due to the if (funcString != match []) condition
+        //The Stylesheet is never refreshed from the changes made by the
+        //Previous query. This is what needs fixing.
+
         /*
             Sets playerSearchString with the Value input by User
             based on the options chosen
@@ -183,7 +200,7 @@
         {
             if (isExactMatch)
             {
-                if (!(nameVar.match(inputPattern)))
+                if (!(checkValidSearch(nameVar)))
                 {
                     alert("You Must Enter a String in the Correct Format with Correct Case " +
                     "\ne.g. to find Andy Murray as an Exact Match Search; A.Murray");
@@ -197,7 +214,7 @@
             {
                 if (!(checkValidSearch(nameVar)))
                 {
-                    alert("The search is case and format sensitive so searching murray will not find" +
+                    alert("The search is case and format sensitive so searching murray will not find " +
                     "A.Murray, additionally neither will AMur or A.m,");
                     plName.value = playerSearchResetString;
                     return;
@@ -267,15 +284,15 @@
         {
             var funcString = [];
 //                    funcString.push("match [");
-                if (playerSearchString.length != 0)
+                if (playerSearchString.length > 0)
                 {
                     funcString.push(playerSearchString);
                 }
-                if (setSearchString.length != 0)
+                if (setSearchString.length > 0)
                 {
                     funcString.push(setSearchString);
                 }
-                if (roundSearchString.length != 0)
+                if (roundSearchString.length > 0)
                 {
                     funcString.push(roundSearchString);
                 }
@@ -403,11 +420,17 @@
             {
                 isValid = false;
             }
+            if (isExactMatch)
+            {
+                if (!(text.match(/[A-Z]\.[a-z]+/i)))
+                {
+                    isValid = false;
+                }
+            }
             for (i = 0; i < text.length; i++)
             {
                 if (text.charAt(i) == "." || text.charAt(i) == "-" || text.charAt(i) == " ")
                 {
-                    console.log(text.charAt(i+1));
                     if (!(isUpperCase(text.charAt(i+1))))
                     {
                         isValid = false;
