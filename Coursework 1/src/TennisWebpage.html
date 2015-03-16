@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <script src="jquery-1.11.2.js"></script>
+    <script src="jquery-1.11.2.js"></script> <!--Requires jquery in the same dir!-->
     <title>Tennis Scores WebPage</title>
 </head>
 <body onload="resetFilter('ALL')">
@@ -23,7 +23,7 @@
                 <td><input type="button" value="Mens Scores" onclick="setMensScores()" style="width: 120px"><br>
                 <input type="button" value="Womens Scores" onclick="setWomensScores()" style="width: 120px"></td>
                 <td>
-                    <textarea style="resize: none" readonly cols="10" id="scoresLoaded"></textarea>
+                    <textarea style="resize: none" placeholder="No File Loaded." readonly cols="10" id="scoresLoaded"></textarea>
                 </td>
             </tr>
         </table>
@@ -100,8 +100,16 @@
 </body>
     <script>
 
-        //I have tried to minimize the error messages to what I would expect on a similar site. I could implement error
-        //Messages for greater then 7 or less than 1, but it seems excessive.
+        /*
+            I have tried to minimize the error messages to what I would expect on a similar site. I could implement error
+            Messages for greater then 7 or less than 1, but it seems excessive.
+        */
+
+        /*
+            I am not entirely sure what is wanted in terms of loading with Chrome and local files
+            My code runs fine in Firefox and also in chrome with the use of this --allow-file-access-from-files
+            when opening Chrome. (Without this
+        */
 
         var xmlDoc;
         var stylesheet;
@@ -110,12 +118,17 @@
 
         //String fields to Store Filter Values
         var playerSearchString = "";
-        var playerSearchResetString = ""; //Used for Resetting the Value of the Player Search
-        // Text Field to a Legitimate Query. Makes sense as with my implementation this is what
-        //The query would search for if the search button was pressed again before reapplying the filter
+        var playerSearchResetString = "";  //Used for Resetting the Value of the Player Search
+                                           // Text Field to a Legitimate Query. Makes sense as with my implementation this is what
+                                           //The query would search for if the search button was pressed again before reapplying the filter
         var setSearchString = "";
         var roundSearchString = "";
-        var sortString = "ascending"; //Default Value
+        var sortString = "ascending";      //Default Value
+        var lastGetXMLSucceeded;               //Field used to control status of last getXML query (and provide error messages based on this)
+
+        if (typeof jQuery == 'undefined') { //Handle No JQuery Found (Inform the User the Page Will Not Work)
+            alert("jQuery library is not loaded\nThe Page Will Not Work Properly!");
+        }
 
         /*
             Function to Load XML using Standard DOM
@@ -123,26 +136,29 @@
         */
         function getXML(filename)
         {
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", filename, false);
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", filename, false);
+            xhr.setRequestHeader('Content-Type', 'text/xml');
+            try {
                 xhr.send(null);
-                return xhr.responseXML;
+            }
+            catch (NS_ERROR_FAILURE) //Catches the Error if the XML file is not found and handles it (Doesnt seem
+            {                        //like the normal, or a very tidy way of doing this)
+                alert(filename + "\nWas Not Found\nThe Page will Not Work Properly");
+                lastGetXMLSucceeded = false;
+                xhr.abort();
+                return;
+            }
+            lastGetXMLSucceeded = true;
+            return xhr.responseXML;
         }
 
         /*
             Setup the Stylesheet
         */
         function setupStyleSheet() {
-            stylesheet = getXML("TennisScores.xsl");
+            stylesheet = getXML("TennisScores.xsl"); //xsl File Must be Placed in the same dir as the HTML File
             proc = new XSLTProcessor();
-            var nsResolver = stylesheet.createNSResolver(
-                    stylesheet.ownerDocument == null ?
-                            stylesheet.documentElement :
-                            stylesheet.ownerDocument.documentElement);
-            var value = stylesheet.evaluate(
-                    "//xsl:template[@match='tournament']//xsl:value-of",
-                    stylesheet, nsResolver,
-                    XPathResult.ANY_UNORDERED_NODE_TYPE, null);
             proc.importStylesheet(stylesheet);
         }
 
@@ -150,8 +166,14 @@
             Set Current Document to Wimbledon 2013 Mens
         */
         function setMensScores() {
-            xmlDoc = getXML("wimbledon-men-2013.xml");
-            scoresLoaded.value = "Loaded Men's Scores";
+            xmlDoc = getXML("wimbledon-men-2013.xml"); //xml File Must be Placed in the same dir as the HTML File
+            if (lastGetXMLSucceeded == true) {
+                scoresLoaded.value = "Loaded Men's Scores";
+            }
+            else
+            {
+                scoresLoaded.value = "No File Loaded.";
+            }
         }
 
         /*
@@ -159,8 +181,14 @@
          */
         function setWomensScores() {
 
-            xmlDoc = getXML("wimbledon-women-2013.xml");
-            scoresLoaded.value = "Loaded Women's Scores";
+            xmlDoc = getXML("wimbledon-women-2013.xml"); //xml File Must be Placed in the same dir as the HTML File
+            if (lastGetXMLSucceeded == true) {
+                scoresLoaded.value = "Loaded Women's Scores";
+            }
+            else
+            {
+                scoresLoaded.value = "No File Loaded.";
+            }
         }
 
         /*
@@ -172,7 +200,7 @@
             if ((document.getElementById("resultDisplay").hasChildNodes())) { //Handles Before a Search is Entered
                 removeResults();
             }
-            //Make sure one of the XML files is loaded
+            //Make sure one of the XML files is loaded (Not the tidiest way of doing this I am sure)
             if (scoresLoaded.value == "")
             {
                 alert("You Must Select a File to Search before trying to search");
@@ -264,11 +292,6 @@
             var l4 = l3[2].childNodes; //Matches Count 114 (with full Mens search)
 
             return l4;
-            //Used for Testing
-//            console.log("L1 Length: " + l1.length);
-//            console.log("L2 Length: " + l2.length);
-//            console.log("L3 Length: " + l3.length);
-//            console.log("L4 Length: " + l4.length);
         }
 
         /*
@@ -570,7 +593,6 @@
         {
             return str == str.toUpperCase();
         }
-
     </script>
 
 </html>
