@@ -528,29 +528,32 @@
             @param The Text being checked
             @return true if the String is valid, false otherwise.
         */
-        function checkValidSearch(text)
+        function checkValidSearch(text) //Might be better to return false rather than use a local variable
         {
             var isValid = true;
-            if (!(isUpperCase(text.charAt(0))))
-            {
-                isValid = false;
-            }
-            if (text.search(/^[a-zA-Z .-]*$/)) //Regex for All Legal Characters which in this case are A-Z a-z whitespace "." and "-"
-            {
-                isValid = false;
-            }
             if (isExactMatch)
+            //Checks for Exact Checked Only
             {
+                if (!(isUpperCase(text.charAt(0))))
+                {
+                    isValid = false;
+                }
                 if (!(text.match(/[A-Z]\.[A-Z][a-z]+/i))) //Regex for Exact Match Enforcing Capital before and after a dot (Must be Present for Exact Match)
                 {
                     isValid = false;
                 }
             }
+            //Checks for All Search Types
+            if (text.search(/^[a-zA-Z .-]*$/)) //Regex for All Legal Characters which in this case are A-Z a-z whitespace "." and "-"
+            {
+                isValid = false;
+            }
             for (i = 0; i < text.length; i++)
             {
                 if (text.charAt(i) == "." || text.charAt(i) == "-" || text.charAt(i) == " ")
                 {
-                    if (!(isUpperCase(text.charAt(i+1))))
+                    if (!(text.charAt(i+1)).match(/[A-Z]/)) //Small Regex to Make sure the next char matches a Capital Letter
+                    //Handles preventing cases like .. or "  " and also that the letter following any of these is a capital
                     {
                         isValid = false;
                     }
