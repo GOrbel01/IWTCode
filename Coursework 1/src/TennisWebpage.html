@@ -565,22 +565,22 @@
                 {
                     isValid = false;
                 }
+                for (i = 0; i < text.length; i++)
+                {
+                    if (text.charAt(i) == "." || text.charAt(i) == "-" || text.charAt(i) == " ")
+                    {
+                        if (!(text.charAt(i+1)).match(/[A-Z]/)) //Small Regex to Make sure the next char matches a Capital Letter
+                        //Handles preventing cases like .. or "  " and also that the letter following any of these is a capital
+                        {
+                            isValid = false;
+                        }
+                    }
+                }
             }
             //Checks for All Search Types
             if (text.search(/^[a-zA-Z .-]*$/)) //Regex for All Legal Characters which in this case are A-Z a-z whitespace "." and "-"
             {
                 isValid = false;
-            }
-            for (i = 0; i < text.length; i++)
-            {
-                if (text.charAt(i) == "." || text.charAt(i) == "-" || text.charAt(i) == " ")
-                {
-                    if (!(text.charAt(i+1)).match(/[A-Z]/)) //Small Regex to Make sure the next char matches a Capital Letter
-                    //Handles preventing cases like .. or "  " and also that the letter following any of these is a capital
-                    {
-                        isValid = false;
-                    }
-                }
             }
             return isValid;
         }
