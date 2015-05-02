@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="jquery-1.11.2.js"></script>
+    <title>FFChar Page</title>
+</head>
+<body>
+    <h1>Final Fantasy Player Information</h1>
+    <!--<form style="float: right">-->
+        <!--All<input style="align-content: center" type="radio" name="GameFilter" id="ALLF"/><br>-->
+        <!--VII<input style="align-content: center" type="radio" name="GameFilter" id="VIIF"/><br>-->
+        <!--VIII<input style="padding-right: 50px" type="radio" name="GameFilter" id="VIIIF"/><br>-->
+        <!--IX<input type="radio" name="GameFilter" id="IXF"/><br>-->
+        <!--X<input type="radio" name="GameFilter" id="XF"/>-->
+    <!--</form>-->
+    <form>
+        <table>
+            <tr>
+                <td>
+                    <label>Search for a Character</label>
+                    <input type="text" id ="myChar" oninput="runQuery()"/>
+                </td>
+                <td>
+                    Game:
+                    <select id="GSel" onchange="runQuery()">
+                        <option value="Any Game" id="OPALL">All</option>
+                        <option value="Final Fantasy VII" id="OPVII">VII</option>
+                        <option value="Final Fantasy VIII" id="OPVIII">VIII</option>
+                        <option value="Final Fantasy IX" id="OPIX">IX</option>
+                        <option value="Final Fantasy X" id="OPX">X</option>
+                    </select>
+                    Gender:
+                    <select id="GenderSel" onchange="runQuery()">
+                        <option value="Any">Any</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <br>
+                Sort By:
+                <select style="" id="SortType" onchange="setupSort()" >
+                    <option value="Game">Game</option>
+                    <option value="Name">Name</option>
+                    <option value="Gender">Gender</option>
+                </select>
+                </td>
+            </tr>
+        </table>
+        <br>
+    </form>
+    <div id="displayArea"></div>
+    <div id="filterArea"></div>
+</body>
+<script>
+    var xmlDoc;
+    var stylesheet;
+    var proc;
+
+    var lastSortType;
+
+    var lastQueryString;
+
+    var sortOrder = "ascending";
+    function setOrder(order) {
+        sortOrder = order;
+    }
+
+    function setupSort() {
+        var query = getSortType(SortType.value);
+        applySort(query);
+        lastSortType = query;
+    }
+
+    function getSortType(type) {
+        var typeStr = "";
+        switch (type) {
+            case "Game": typeStr = "$array[. = current()/@game]/@sort";
+                break;
+            case "Name": typeStr = "name";
+                break;
+            case "Gender": typeStr = "gender";
+                break;
+        }
+        return typeStr;
+    }
+
+    setup();
+
+//    function getXML(filename) {
+//        var xhr = new XMLHttpRequest();
+//        xhr.open("GET", filename, false);
+//        try {
+//            xhr.send(null);
+//        }
+//        catch (NS_ERROR_FAILURE) {
+//            alert(filename + "\nWas Not Found\nThe Page will not work properly");
+//            xhr.abort();
+//            return;
+//        }
+//        return xhr.responseXML;
+//    }
+
+    function getXML(myUrl) {
+        var xhr = $.ajax({
+            url:    myUrl,
+            datatype: "xml",
+            async: false
+        });
+        return xhr.responseXML;
+    }
+
+    function setupStyleSheet() {
+        stylesheet = getXML("FFCharsDisplay.xsl");
+        proc = new XSLTProcessor();
+        proc.importStylesheet(stylesheet);
+    }
+
+    function setupInfo() {
+        xmlDoc = getXML("ffcharlist.xml");
+        var result = proc.transformToFragment(xmlDoc, document);
+        document.getElementById("displayArea").appendChild(result);
+    }
+
+    function setup() {
+        setupStyleSheet();
+        setupInfo();
+        lastSortType = "$array[. = current()/@game]/@sort";
+        lastQueryString = "character";
+    }
+
+    function reset() {
+        console.log("Reset");
+        removeResults();
+        setupInfo();
+        setupStyleSheet();
+    }
+
+    /**
+     * Removes the current contents of the results div node
+     * Called Whenever a new Search is Run (i.e. Search Button Press)
+     */
+    function removeResults()
+    {
+        var root = document.getElementById("displayArea");
+        while(root.hasChildNodes())
+        {
+            root.removeChild(root.firstChild);
+        }
+    }
+
+    function nameQueryGen(name) {
+        name = name.toLowerCase();
+        var query = "name[contains(translate(.,'" + name.toUpperCase() + "', '" +
+                name.toLowerCase() + "'),'" + name + "')]";
+        if (name != "") {
+            return query;
+        }
+        else {
+            return "";
+        }
+    }
+
+    function gameQueryGen(game) {
+        var query = "game='" + game + "'";
+        if (game != "Any Game") {
+            return query;
+        }
+        else {
+            return "";
+        }
+    }
+
+    function genderQueryGen(gender) {
+        var query = "gender='" + gender + "'";
+        if (gender != "Any") {
+            return query;
+        }
+        else {
+            return "";
+        }
+    }
+
+    function runQuery() {
+        var fullQuery = buildQuery();
+        console.log("FQ: " + fullQuery);
+        if (fullQuery != "") {
+            transformJQuery(fullQuery);
+        }
+        else {
+            reset();
+            setupSort();
+        }
+        lastQueryString = fullQuery;
+    }
+
+    function buildQuery() {
+        var queryArray = [];
+        var queryString = "";
+        var nameQuery = nameQueryGen(myChar.value);
+        var gameQuery = gameQueryGen(GSel.value);
+        var genderQuery = genderQueryGen(GenderSel.value);
+        if (nameQuery != "") {
+            queryArray.push(nameQuery);
+        }
+        if (gameQuery != "") {
+            queryArray.push(gameQuery);
+        }
+        if (genderQuery != "") {
+            queryArray.push(genderQuery);
+        }
+        for (var i = 0; i < queryArray.length; i++) {
+            if (queryArray[i] != "") {
+                if (i > 0) {
+                    queryString = queryString + " and " + queryArray[i];
+                }
+                else {
+                    queryString = queryArray[i];
+                }
+            }
+        }
+        if (queryString != "") {
+            queryString = "character [" + queryString + "]";
+        }
+        return queryString;
+    }
+
+    function applySort(sortString) {
+            removeResults();
+//            stylesheet = getXML("FFCharsDisplay.xsl");
+            var nsResolver = stylesheet.createNSResolver(
+                    stylesheet.ownerDocument == null ?
+                            stylesheet.documentElement :
+                            stylesheet.ownerDocument.documentElement);
+            var value = stylesheet.evaluate(
+                    "//xsl:sort[@select='" + lastSortType + "']",
+                    stylesheet, nsResolver,
+                    XPathResult.ANY_UNORDERED_NODE_TYPE, null);
+            value.singleNodeValue.setAttribute("select", sortString);
+            proc = new XSLTProcessor();
+            proc.importStylesheet(stylesheet);
+            var result = proc.transformToFragment(xmlDoc, document);
+            document.getElementById("displayArea").appendChild(result);
+    }
+
+    /*
+        Just works so much better with JQuery so this method is deprecated
+     */
+    function transformStyle(queryString) {
+        removeResults();
+        console.log("LQ: " + lastQueryString);
+        var teststr = "'character [game='Final Fantasy VIII\']'";
+        console.log(teststr);
+//            stylesheet = getXML("FFCharsDisplay.xsl");
+            var nsResolver = stylesheet.createNSResolver(
+                    stylesheet.ownerDocument == null ?
+                            stylesheet.documentElement :
+                            stylesheet.ownerDocument.documentElement);
+            var value = stylesheet.evaluate(
+                    "//xsl:apply-templates[@select='character']",
+//                    "//xsl:apply-templates[@select='" + lastQueryString + "']",
+                    stylesheet, nsResolver,
+                    XPathResult.ANY_UNORDERED_NODE_TYPE, null);
+            value.singleNodeValue.setAttribute("select", queryString);
+            proc = new XSLTProcessor();
+            proc.importStylesheet(stylesheet);
+        var result = proc.transformToFragment(xmlDoc, document);
+        document.getElementById("displayArea").appendChild(result);
+    }
+
+    function transformJQuery(queryString) {
+        removeResults();
+        if (typeof (XSLTProcessor) != "undefined") {
+            $(stylesheet).find("xsl\\:apply-templates, apply-templates")
+                    .eq(0)
+                    .attr("select", queryString);
+        }
+        else
+        {
+            window.alert("Your Browser does Not Support XSLT Transformations");
+        }
+        proc = new XSLTProcessor();
+        proc.importStylesheet(stylesheet);
+        var result = proc.transformToFragment(xmlDoc, document);
+        document.getElementById("displayArea").appendChild(result);
+    }
+</script>
+</html>

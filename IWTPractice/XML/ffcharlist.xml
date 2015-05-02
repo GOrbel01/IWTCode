@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="FFCharsDisplay.xsl"?>
+<!-- DTD Definition-->
+<!DOCTYPE FFPEOPLE [
+        <!ENTITY ff7              "Final Fantasy VII" >
+        <!ENTITY ff8              "Final Fantasy VIII" >
+        <!ENTITY ff9              "Final Fantasy IX" >
+        <!ENTITY ff10             "Final Fantasy X" >
+        <!ELEMENT FFPEOPLE        (docName, character+) >
+        <!ELEMENT docName         (#PCDATA) >
+        <!ELEMENT character       (name, gender, materialist?, game, ultimateweapon, relations) >
+        <!ELEMENT materialist     (materia*) >
+        <!ELEMENT materia         (mname, mtype) >
+        <!ELEMENT mname           (#PCDATA) >
+        <!ELEMENT mtype           (#PCDATA)>
+        <!ELEMENT name            (#PCDATA) >
+        <!ELEMENT gender          (#PCDATA) >
+        <!ELEMENT game            (#PCDATA) >
+        <!ELEMENT ultimateweapon  (#PCDATA) >
+        <!ELEMENT relations       (relation*) >
+        <!ELEMENT relation        (#PCDATA) >
+
+        <!ATTLIST character
+                cno ID #REQUIRED
+                >
+]>
+<FFPEOPLE>
+    <docName>Final Fantasy Characters</docName>
+    <character cno="c1">
+        <name>Cloud</name>
+        <gender>Male</gender>
+        <materialist>
+            <materia>
+                <mname>Bahamut</mname>
+                <mtype>4</mtype>
+            </materia>
+            <materia>
+                <mname>4x Cut</mname>
+                <mtype>2</mtype>
+            </materia>
+        </materialist>
+        <game>&ff7;</game>
+        <ultimateweapon>Ultima Sword</ultimateweapon>
+        <relations>
+            <relation>Tifa</relation>
+            <relation>Aeris</relation>
+        </relations>
+    </character>
+    <character cno="c2">
+        <name>Tifa</name>
+        <gender>Female</gender>
+        <materialist>
+            <materia>
+                <mname>Cure</mname>
+                <mtype>3</mtype>
+            </materia>
+        </materialist>
+        <game>&ff7;</game>
+        <ultimateweapon>Premium Heart</ultimateweapon>
+        <relations>
+            <relation>Cloud</relation>
+        </relations>
+    </character>
+    <character cno="c3">
+        <name>Aeris</name>
+        <gender>Female</gender>
+        <materialist>
+            <materia>
+                <mname>Holy</mname>
+                <mtype>3</mtype>
+            </materia>
+            <materia>
+                <mname>Alexander</mname>
+                <mtype>4</mtype>
+            </materia>
+        </materialist>
+        <game>&ff7;</game>
+        <ultimateweapon>Princess Guard</ultimateweapon>
+        <relations>
+            <relation>Cloud</relation>
+            <relation>Zack</relation>
+        </relations>
+    </character>
+    <character cno="c4">
+        <name>Vincent</name>
+        <gender>Male</gender>
+        <game>&ff7;</game>
+        <ultimateweapon>Death Penalty</ultimateweapon>
+        <relations>
+            <relation>Lucrecia</relation>
+        </relations>
+    </character>
+    <character cno="c14">
+        <name>Yuffie</name>
+        <gender>Female</gender>
+        <materialist>
+            <materia>
+                <mname>Steal</mname>
+                <mtype>2</mtype>
+            </materia>
+            <materia>
+                <mname>2x Cut</mname>
+                <mtype>2</mtype>
+            </materia>
+        </materialist>
+        <game>&ff7;</game>
+        <ultimateweapon>Conformer</ultimateweapon>
+        <relations>
+        </relations>
+    </character>
+    <character cno="c13">
+        <name>Sephiroth</name>
+        <gender>Male</gender>
+        <game>&ff7;</game>
+        <ultimateweapon>Masamune</ultimateweapon>
+        <relations>
+            <relation>Jenova</relation>
+        </relations>
+    </character>
+    <character cno="c27">
+        <name>Cid</name>
+        <gender>Male</gender>
+        <game>&ff7;</game>
+        <ultimateweapon>Venus Gospel</ultimateweapon>
+        <relations>
+            <relation>Shera</relation>
+        </relations>
+    </character>
+    <character cno="c5">
+        <name>Squall</name>
+        <gender>Male</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Lionheart</ultimateweapon>
+        <relations>
+            <relation>Rinoa</relation>
+        </relations>
+    </character>
+    <character cno="c18">
+        <name>Laguna</name>
+        <gender>Male</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Machine Gun</ultimateweapon>
+        <relations>
+            <relation>Rayne</relation>
+            <relation>Julia</relation>
+        </relations>
+    </character>
+    <character cno="c15">
+        <name>Zell</name>
+        <gender>Male</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Ehrgeiz</ultimateweapon>
+        <relations>
+        </relations>
+    </character>
+    <character cno="c6">
+        <name>Rinoa</name>
+        <gender>Female</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Shooting Star</ultimateweapon>
+        <relations>
+            <relation>Squall</relation>
+        </relations>
+    </character>
+    <character cno="c16">
+        <name>Selphie</name>
+        <gender>Female</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Strange Vision</ultimateweapon>
+        <relations>
+        </relations>
+    </character>
+    <character cno="c17">
+        <name>Quistis</name>
+        <gender>Female</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Save the Queen</ultimateweapon>
+        <relations>
+            <relation>Squall</relation>
+        </relations>
+    </character>
+    <character cno="c26">
+        <name>Ellone</name>
+        <gender>Female</gender>
+        <game>&ff8;</game>
+        <ultimateweapon>Time Compression</ultimateweapon>
+        <relations>
+            <relation>Squall</relation>
+            <relation>Laguna</relation>
+        </relations>
+    </character>
+    <character cno="c7">
+        <name>Zidane</name>
+        <gender>Male</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Ultima Weapon</ultimateweapon>
+        <relations>
+            <relation>Garnet</relation>
+        </relations>
+    </character>
+    <character cno="c8">
+        <name>Garnet</name>
+        <gender>Female</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Whale Whisker</ultimateweapon>
+        <relations>
+            <relation>Zidane</relation>
+        </relations>
+    </character>
+    <character cno="c9">
+        <name>Steiner</name>
+        <gender>Male</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Ragnarok</ultimateweapon>
+        <relations>
+            <relation>Beatrix</relation>
+        </relations>
+    </character>
+    <character cno="c25">
+        <name>Vivi</name>
+        <gender>Male</gender>
+        <materialist>
+            <materia>
+                <mname>Firaga</mname>
+                <mtype>3</mtype>
+            </materia>
+            <materia>
+                <mname>Flare</mname>
+                <mtype>3</mtype>
+            </materia>
+        </materialist>
+        <game>&ff9;</game>
+        <ultimateweapon>Mace of Zeus</ultimateweapon>
+        <relations>
+        </relations>
+    </character>
+    <character cno="c19">
+        <name>Freya</name>
+        <gender>Female</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Kain's Lance</ultimateweapon>
+        <relations>
+            <relation>Sir Freytley</relation>
+        </relations>
+    </character>
+    <character cno="c20">
+        <name>Blank</name>
+        <gender>Male</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Broadsword</ultimateweapon>
+        <relations>
+            <relation>Ruby</relation>
+        </relations>
+    </character>
+    <character cno="c10">
+        <name>Beatrix</name>
+        <gender>Female</gender>
+        <game>&ff9;</game>
+        <ultimateweapon>Save the Queen</ultimateweapon>
+        <relations>
+            <relation>Steiner</relation>
+        </relations>
+    </character>
+    <character cno="c11">
+        <name>Tidus</name>
+        <gender>Male</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>Caladbolg</ultimateweapon>
+        <relations>
+            <relation>Yuna</relation>
+        </relations>
+    </character>
+    <character cno="c12">
+        <name>Yuna</name>
+        <gender>Female</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>Nirvana</ultimateweapon>
+        <relations>
+            <relation>Tidus</relation>
+        </relations>
+    </character>
+    <character cno="c22">
+        <name>Wakka</name>
+        <gender>Male</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>World Champion</ultimateweapon>
+        <relations>
+            <relation>Lulu</relation>
+        </relations>
+    </character>
+    <character cno="c23">
+        <name>Lulu</name>
+        <gender>Female</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>Onion Knight</ultimateweapon>
+        <relations>
+            <relation>Wakka</relation>
+        </relations>
+    </character>
+    <character cno="c24">
+        <name>Rikku</name>
+        <gender>Female</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>Godhand</ultimateweapon>
+        <relations>
+        </relations>
+    </character>
+    <character cno="c21">
+        <name>Jecht</name>
+        <gender>Male</gender>
+        <game>&ff10;</game>
+        <ultimateweapon>Sin;s Fang</ultimateweapon>
+        <relations>
+            <relation>Tidus' Mum</relation>
+        </relations>
+    </character>
+</FFPEOPLE>

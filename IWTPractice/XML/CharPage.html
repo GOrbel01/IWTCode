@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1 id="NAME"></h1>
+    <div id="nameAREA"></div>
+</body>
+<script>
+    var xmlDoc;
+    var stylesheet;
+    var proc;
+
+    setupStyleSheet();
+    xmlDoc = getXML("ffcharlist.xml");
+
+    function getXML(filename) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", filename, false);
+        try {
+            xhr.send(null);
+        }
+        catch (NS_ERROR_FAILURE) {
+            alert(filename + "\nWas Not Found\nThe Page will not work properly");
+            xhr.abort();
+            return;
+        }
+        return xhr.responseXML;
+    }
+
+    display();
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+
+    function setupStyleSheet() {
+        stylesheet = getXML("FFCharsDisplay.xsl");
+        proc = new XSLTProcessor();
+        proc.importStylesheet(stylesheet);
+    }
+</script>
+</html>

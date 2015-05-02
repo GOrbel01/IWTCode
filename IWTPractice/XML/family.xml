@@ -1,0 +1,33 @@
+<?xml version = "1.0" encoding="UTF-8"?>
+<!DOCTYPE family [
+  <!ELEMENT family (parent, (parent)?, (child)*) >
+  <!ELEMENT parent (name, age) >
+  <!ELEMENT child  (name, age) >
+  <!ELEMENT name   (#PCDATA) >
+  <!ELEMENT age    (#PCDATA) >
+  <!ATTLIST parent
+    pno ID                  #REQUIRED
+    role (mother|father)    #IMPLIED
+    spouse IDREF            #IMPLIED >
+  <!ATTLIST child
+    cno ID                  #REQUIRED
+    siblings IDREFS         #IMPLIED >
+]>
+<family>
+    <parent pno="p1" role="mother" spouse="p2">
+        <name>Jess</name>
+        <age>43</age>
+    </parent>
+    <parent pno="p2" role="father" spouse="p1">
+        <name>Jeff</name>
+        <age>44</age>
+    </parent>
+    <child cno="c1" siblings="c2">
+        <name>Tom</name>
+        <age>12</age>
+    </child>
+    <child cno="c2" siblings="c1">
+        <name>Jane</name>
+        <age>9</age>
+    </child>
+</family>
